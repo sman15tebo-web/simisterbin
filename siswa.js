@@ -1446,10 +1446,7 @@ async function submitDaftarUlang(e) {
         const fBukti = document.getElementById('file_bukti').files[0];
         const idFotoMasuk = $('#du_id_foto_masuk').val();
 
-        if (!fIjazah || !fKk || !fAkta || !fBukti) {
-            Swal.fire('Berkas Tidak Lengkap', 'Semua dokumen pendukung pendaftaran (Ijazah, KK, Akta, dan Bukti SPMB) wajib diunggah pada kotak unggah berkas!', 'warning');
-            return;
-        }
+
 
         // Cek Foto Diri
         if (!idFotoMasuk) {
