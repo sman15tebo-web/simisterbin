@@ -1686,7 +1686,7 @@ async function prosesOCRDokumen(input) {
 
             try {
                 let base64 = await getCompressedBase64Async(file);
-                let mimeType = file.type;
+                let mimeType = base64.split(':')[1].split(';')[0]; // Pastikan sesuai dengan output canvas (image/jpeg)
 
                 let ocrResult = await callAPI('extractDataOCR', {
                     base64: base64,
