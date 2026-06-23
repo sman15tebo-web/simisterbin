@@ -941,9 +941,17 @@ function formatAndValidateNIK_KK(input, namaKolom) {
 
 function checkFileSize(input) {
     if (input.files && input.files[0]) {
-        if (input.files[0].size > 2048 * 1024) { // 2 MB = 2048 * 1024 Bytes
-            Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran file adalah 2MB! Silakan kompres file Anda terlebih dahulu.', 'error');
-            input.value = ''; // Reset input agar dikosongkan
+        let file = input.files[0];
+        if (file.type.startsWith('image/')) {
+            if (file.size > 10 * 1024 * 1024) { // 10 MB limit untuk gambar (akan dikompres otomatis)
+                Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran foto adalah 10MB!', 'error');
+                input.value = '';
+            }
+        } else {
+            if (file.size > 2048 * 1024) { // 2 MB limit untuk PDF/Lainnya
+                Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran dokumen PDF adalah 2MB! Silakan kompres manual file Anda.', 'error');
+                input.value = '';
+            }
         }
     }
 }
@@ -953,6 +961,45 @@ function getBase64Async(file) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+function getCompressedBase64Async(file, maxWidth = 1600, maxHeight = 1600, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        // Jika bukan gambar, kembalikan ke base64 biasa
+        if (!file.type.startsWith('image/')) {
+            return getBase64Async(file).then(resolve).catch(reject);
+        }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // Kompres jadi JPEG
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = error => reject(error);
+        };
         reader.onerror = error => reject(error);
     });
 }
