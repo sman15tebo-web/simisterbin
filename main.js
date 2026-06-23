@@ -967,7 +967,7 @@ function getBase64Async(file) {
     });
 }
 
-function getCompressedBase64Async(file, maxWidth = 1600, maxHeight = 1600, quality = 0.7) {
+function getCompressedBase64Async(file, maxWidth = 2500, maxHeight = 2500, quality = 0.85) {
     return new Promise((resolve, reject) => {
         let isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|heic)$/i.test(file.name);
         
