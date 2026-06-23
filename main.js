@@ -942,7 +942,9 @@ function formatAndValidateNIK_KK(input, namaKolom) {
 function checkFileSize(input) {
     if (input.files && input.files[0]) {
         let file = input.files[0];
-        if (file.type.startsWith('image/')) {
+        let isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|heic)$/i.test(file.name);
+        
+        if (isImage) {
             if (file.size > 10 * 1024 * 1024) { // 10 MB limit untuk gambar (akan dikompres otomatis)
                 Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran foto adalah 10MB!', 'error');
                 input.value = '';
@@ -967,8 +969,10 @@ function getBase64Async(file) {
 
 function getCompressedBase64Async(file, maxWidth = 1600, maxHeight = 1600, quality = 0.7) {
     return new Promise((resolve, reject) => {
+        let isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|heic)$/i.test(file.name);
+        
         // Jika bukan gambar, kembalikan ke base64 biasa
-        if (!file.type.startsWith('image/')) {
+        if (!isImage) {
             return getBase64Async(file).then(resolve).catch(reject);
         }
         const reader = new FileReader();
